@@ -6,9 +6,8 @@
 // - SDDM Team https://github.com/sddm/sddm
 import QtQuick 2.8
 import QtQuick.Controls 2.1
-import QtGraphicalEffects 1.0
+import Qt5Compat.GraphicalEffects 1.0
 import QtQuick.Layouts 1.2
-import QtQuick.Controls.Styles 1.4
 import "components"
 
 Rectangle {
