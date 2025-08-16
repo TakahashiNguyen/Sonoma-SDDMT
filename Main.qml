@@ -71,6 +71,168 @@ Rectangle {
         source: panel
     }
 
+    Row {
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.rightMargin: 40
+        anchors.topMargin: 15
+        visible: false
+
+        Item {
+
+            Image {
+                id: shutdown
+                height: 22
+                width: 22
+                source: "images/system-shutdown.svg"
+                fillMode: Image.PreserveAspectFit
+
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onEntered: {
+                        shutdown.source = "images/system-shutdown-hover.svg";
+                        var component = Qt.createComponent("components/ShutdownToolTip.qml");
+                        if (component.status === Component.Ready) {
+                            var tooltip = component.createObject(shutdown);
+                            tooltip.x = -100;
+                            tooltip.y = 40;
+                            tooltip.destroy(600);
+                        }
+                    }
+                    onExited: {
+                        shutdown.source = "images/system-shutdown.svg";
+                    }
+                    onClicked: {
+                        shutdown.source = "images/system-shutdown-pressed.svg";
+                        sddm.powerOff();
+                    }
+                }
+            }
+        }
+    }
+
+    Row {
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.rightMargin: 70
+        anchors.topMargin: 15
+        visible: false
+
+        Item {
+
+            Image {
+                id: reboot
+                height: 22
+                width: 22
+                source: "images/system-reboot.svg"
+                fillMode: Image.PreserveAspectFit
+
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onEntered: {
+                        reboot.source = "images/system-reboot-hover.svg";
+                        var component = Qt.createComponent("components/RebootToolTip.qml");
+                        if (component.status === Component.Ready) {
+                            var tooltip = component.createObject(reboot);
+                            tooltip.x = -100;
+                            tooltip.y = 40;
+                            tooltip.destroy(600);
+                        }
+                    }
+                    onExited: {
+                        reboot.source = "images/system-reboot.svg";
+                    }
+                    onClicked: {
+                        reboot.source = "images/system-reboot-pressed.svg";
+                        sddm.reboot();
+                    }
+                }
+            }
+        }
+    }
+    Row {
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.rightMargin: 88
+        anchors.topMargin: 15
+        visible: false
+        Text {
+            id: kb
+            color: "#eff0f1"
+            text: keyboard.layouts[keyboard.currentLayout].shortName
+            font.pointSize: 12
+            font.weight: Font.DemiBold
+        }
+    }
+    Row {
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.rightMargin: 110
+        anchors.topMargin: 15
+        visible: false
+
+        ComboBox {
+            id: session
+            height: 22
+            width: 150
+            model: sessionModel
+            textRole: "name"
+            displayText: ""
+            currentIndex: sessionModel.lastIndex
+            background: Rectangle {
+                implicitWidth: parent.width
+                implicitHeight: parent.height
+                color: "transparent"
+            }
+
+            delegate: MenuItem {
+                id: menuitems
+                width: slistview.width * 4
+                text: session.textRole ? (Array.isArray(session.model) ? modelData[session.textRole] : model[session.textRole]) : modelData
+                highlighted: session.highlightedIndex === index
+                hoverEnabled: session.hoverEnabled
+                onClicked: {
+                    ava.source = "/var/lib/AccountsService/icons/" + user.currentText;
+                    session.currentIndex = index;
+                    slistview.currentIndex = index;
+                    session.popup.close();
+                }
+            }
+            indicator: Rectangle {
+                anchors.right: parent.right
+                anchors.rightMargin: 9
+                height: parent.height
+                width: 22
+                color: "transparent"
+                Image {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width
+                    height: width
+                    fillMode: Image.PreserveAspectFit
+                    source: "images/conf.svg"
+                }
+            }
+            popup: Popup {
+                width: parent.width
+                height: parent.height * menuitems.count
+                implicitHeight: slistview.contentHeight
+                margins: 0
+                contentItem: ListView {
+                    id: slistview
+                    clip: true
+                    anchors.fill: parent
+                    model: session.model
+                    spacing: 0
+                    highlightFollowsCurrentItem: true
+                    currentIndex: session.highlightedIndex
+                    delegate: session.delegate
+                }
+            }
+        }
+    }
+
     Item {
         width: parent.width
         Rectangle {
@@ -396,6 +558,19 @@ Rectangle {
                         }
                     ]
                 }
+            }
+
+            Label {
+                id: greetingLabel
+                text: "Enter Password"
+                color: "#fff"
+                style: softwareRendering ? Text.Outline : Text.Normal
+                styleColor: softwareRendering ? ColorScope.backgroundColor : "transparent" //no outline, doesn't matter
+                font.pointSize: 8
+                Layout.alignment: Qt.AlignHCenter
+                font.family: config.font
+                font.bold: true
+                visible: false
             }
             Keys.onPressed: {
                 if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
