@@ -30,7 +30,7 @@ ColumnLayout {
         source: fontstyle
     }
     readonly property bool softwareRendering: GraphicsInfo.api === GraphicsInfo.Software
-    property string currentTime: Qt.formatTime(new Date(), "hh:mm:ss")
+    property string currentTime: Qt.formatTime(new Date(), "hh:mm")
 
     Timer {
         id: timeTimer
