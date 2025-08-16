@@ -16,21 +16,32 @@
  *   Free Software Foundation, Inc.,
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- 
+
 import QtQuick 2.8
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.5
-import org.kde.plasma.core 2.0
 
 ColumnLayout {
     spacing: 2
-    property string fontstyle : "Fonts/FontsFree-Net-SF-UI-Text-Bold.ttf"
-     property string fontstylelight : "Fonts/SFUIText-Semibold.otf"
+    property string fontstyle: "Fonts/FontsFree-Net-SF-UI-Text-Bold.ttf"
+    property string fontstylelight: "Fonts/SFUIText-Semibold.otf"
     FontLoader {
-        id : loginfont
-        source : fontstyle
+        id: loginfont
+        source: fontstyle
     }
     readonly property bool softwareRendering: GraphicsInfo.api === GraphicsInfo.Software
+    property string currentTime: Qt.formatTime(new Date(), "hh:mm:ss")
+
+    Timer {
+        id: timeTimer
+        interval: 1000 // 1 second
+        repeat: true
+        running: true
+        onTriggered: {
+            currentTime = Qt.formatTime(new Date(), "hh:mm");
+        }
+    }
+
     Label {
         text: Qt.formatDateTime(new Date(), "dddd, MMMM d")
         color: "white"
@@ -41,10 +52,9 @@ ColumnLayout {
         font.bold: true
         Layout.alignment: Qt.AlignHCenter
         font.family: config.name
-
     }
     Label {
-        text: Qt.formatTime(timeSource.data["Local"]["DateTime"])
+        text: currentTime
         color: "white"
         opacity: 0.5
         style: softwareRendering ? Text.Outline : Text.Normal
@@ -53,13 +63,5 @@ ColumnLayout {
         font.bold: true
         Layout.alignment: Qt.AlignHCenter
         font.family: config.name
-
     }
-    DataSource {
-        id: timeSource
-        engine: "time"
-        connectedSources: ["Local"]
-        interval: 1000
-    }
-
 }
